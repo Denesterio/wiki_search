@@ -32,7 +32,7 @@ export default {
     id: "id",
     title: "Название",
     link: "Ссылка",
-    words_count: "Уникальных слов",
+    words_count: "Всего слов",
   },
 };
 </script>

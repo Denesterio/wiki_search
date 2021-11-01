@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Article;
 use App\Models\Word;
-use App\Models\ArticlesWords;
 use Illuminate\Support\Facades\DB;
 
 class WordController extends Controller
@@ -39,9 +37,11 @@ class WordController extends Controller
         // получение id, сохранение в articles_words
         $wordsWithIds = DB::table('words')->whereRaw($sql)->get();
         $articlesWordsTableInsertData = $wordsWithIds->map(function ($item) use ($article, $uniqueWordsCounts) {
-            if (array_key_exists($item->word, $uniqueWordsCounts)) {
-                return ['word_id' => $item->id, 'article_id' => $article->id, 'count' => $uniqueWordsCounts[$item->word]];
-            }
+            return [
+                'word_id' => $item->id,
+                'article_id' => $article->id,
+                'count' => $uniqueWordsCounts[$item->word]
+            ];
         })->all();
         DB::table('articles_words')->insert($articlesWordsTableInsertData);
 

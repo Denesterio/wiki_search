@@ -2198,7 +2198,7 @@ __webpack_require__.r(__webpack_exports__);
     id: "id",
     title: "Название",
     link: "Ссылка",
-    words_count: "Уникальных слов"
+    words_count: "Всего слов"
   }
 });
 
@@ -39363,7 +39363,7 @@ var render = function () {
     ]),
     _vm._v(" "),
     _c("p", [
-      _c("b", [_vm._v("Количество уникальных слов:")]),
+      _c("b", [_vm._v("Количество слов:")]),
       _vm._v(" " + _vm._s(_vm.article["words_count"])),
     ]),
   ])
@@ -39642,7 +39642,7 @@ var render = function () {
     "div",
     [
       _c("form-component", {
-        attrs: { buttonLabel: "Найти", disabled: _vm.isFormDisabled },
+        attrs: { buttonLabel: "Скопировать", disabled: _vm.isFormDisabled },
         nativeOn: {
           submit: function ($event) {
             return _vm.loadArticle.apply(null, arguments)
@@ -39686,7 +39686,7 @@ var render = function () {
           _vm._v(" "),
           _vm.error.lenght
             ? _c("h2", [_vm._v("Ошибка во время загрузки")])
-            : _vm.articles.length
+            : _vm.articles.length > 0
             ? [
                 _c("h2", [_vm._v("Загруженные статьи")]),
                 _vm._v(" "),

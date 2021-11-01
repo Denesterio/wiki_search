@@ -4,7 +4,7 @@
     <form-component
       v-model="currentSearchedArticle"
       @submit.native="loadArticle"
-      buttonLabel="Найти"
+      buttonLabel="Скопировать"
       :disabled="isFormDisabled"
     ></form-component>
     <!-- показ данных о загрузке -->
@@ -22,7 +22,7 @@
     <section class="mt-4">
       <h2 v-if="loading">Загрузка...</h2>
       <h2 v-if="error.lenght">Ошибка во время загрузки</h2>
-      <template v-else-if="articles.length">
+      <template v-else-if="articles.length > 0">
         <h2>Загруженные статьи</h2>
         <base-table :articles="articles"></base-table>
       </template>

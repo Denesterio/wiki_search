@@ -19,17 +19,17 @@ final class TextService
         $formattedText = mb_ereg_replace("[ёЁ]", "е", $formattedText);
         preg_match_all($pattern, $formattedText, $matches);
 
-        $wordsArray = array();
+        $wordsCountArray = array();
 
         foreach ($matches[0] as $word) {
             $wordInLowerCase = mb_strtolower($word);
-            if (array_key_exists($wordInLowerCase, $wordsArray)) {
-                $wordsArray[$wordInLowerCase] += 1;
+            if (array_key_exists($wordInLowerCase, $wordsCountArray)) {
+                $wordsCountArray[$wordInLowerCase] += 1;
             } else {
-                $wordsArray[$wordInLowerCase] = 1;
+                $wordsCountArray[$wordInLowerCase] = 1;
             }
         }
 
-        return $wordsArray;
+        return $wordsCountArray;
     }
 }

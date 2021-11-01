@@ -18,21 +18,18 @@ class ArticleController extends Controller
         ]);
 
         $dataCollect = $api->wikiFetch($request['query']);
-        $data = $dataCollect['query']['pages'];
 
-        // страницы в массиве под ключом pages
-        // в котором ключ каждой статьи - ее id в вики
-        // + 'normalized', 'redirects' при перенаправлении
+        $data = $dataCollect['query']['pages'];
         $articleId = array_key_first($data);
         if ($articleId === -1) {
             return response()->json(['status' => 404, 'message' => 'Статья не найдена'], 404);
         }
         $articleKey = (string) $articleId;
 
-        // запись статьи содержит 'pageid', 'title', 'extract'
+        // создание статьи
         $title = $data[$articleKey]['title'];
         $body = $data[$articleKey]['extract'];
-        $link = $api->buildWikiLink($title);
+        $link = rawurldecode($data[$articleKey]['fullurl']);
 
         $articleData = compact('title', 'body', 'link');
         $this->validator($articleData)->validate();
@@ -44,14 +41,17 @@ class ArticleController extends Controller
         $wc = new WordController();
         $words = $formatter->countWordsInText($body . ' ' . $title);
         $wc->createAll($article, $words);
-        $wordsCount = count($words);
+        $wordsCount = array_reduce($words, function ($sum, $num) {
+            $sum += $num;
+            return $sum;
+        }, 0);
 
-        $len = round((strlen($title) + strlen($body)) / 1024, 1);
+        $lenKBytes = round((strlen($title) + strlen($body)) / 1024, 1);
 
         return [
             'title' => $article->title,
             'id' => $article->id,
-            'length' => $len,
+            'length' => $lenKBytes,
             'link' => $link,
             'words_count' => $wordsCount,
         ];
@@ -59,14 +59,8 @@ class ArticleController extends Controller
 
     public function index()
     {
-        // $articles = DB::raw(
-        //     'select articles.id, title, link, articles.created_at, COUNT(*) as words_count
-        //     from `articles`
-        //     left join `articles_words` on articles.id = articles_words.article_id
-        //     group by articles.id
-        //     order by articles.created_at desc');
         $articles = DB::table('articles')
-            ->selectRaw('articles.id, title, link, articles.created_at, COUNT(*) as words_count')
+            ->selectRaw('articles.id, title, link, articles.created_at, SUM(count) as words_count')
             ->join('articles_words', 'articles.id', '=', 'articles_words.article_id')
             ->groupBy('articles.id', 'articles.title', 'articles.link', 'articles.created_at')
             ->orderBy('articles.created_at', 'desc')
@@ -82,13 +76,8 @@ class ArticleController extends Controller
 
     public function search(Request $request)
     {
-        // SELECT word, count, title, articles.id as article_id
-        // FROM `articles_words`
-        // JOIN `articles` ON articles.id = articles_words.article_id
-        // JOIN `words` ON articles_words.word_id = words.id
-        // WHERE word='также';
-
         $query = $request['query'];
+        $query = mb_ereg_replace("ё", "е", $query);
         $articles = DB::table('articles_words')
             ->selectRaw('word, count, title, link, articles.id as article_id')
             ->leftJoin('words', 'words.id', '=', 'articles_words.word_id')
