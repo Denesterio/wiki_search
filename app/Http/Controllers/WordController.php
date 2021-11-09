@@ -43,7 +43,14 @@ class WordController extends Controller
                 'count' => $uniqueWordsCounts[$item->word]
             ];
         })->all();
-        DB::table('articles_words')->insert($articlesWordsTableInsertData);
+
+        $rowsCount = count($articlesWordsTableInsertData);
+        $offset = 0;
+        while ($rowsCount > 0) {
+            DB::table('articles_words')->insert(array_slice($articlesWordsTableInsertData, $offset, 1000));
+            $offset += 1000;
+            $rowsCount -= 1000;
+        }
 
         return $uniqueWordsCounts;
     }
